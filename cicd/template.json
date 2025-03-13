@@ -1,0 +1,239 @@
+{
+	"kind": "Template",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "${NAME}",
+		"annotations": {
+			"tags": "${NAME}",
+			"iconClass": "icon-${NAME}",
+			"openshift.io/provider-display-name": "Tata Motors"
+		}
+	},
+	"labels": {
+		"template": "${NAME}",
+		"app": "${NAME}"
+	},
+	"objects": [
+		{
+			"apiVersion": "v1",
+			"kind": "ImageStream",
+			"metadata": {
+				"name": "${NAME}"
+			},
+			"spec": {
+				"lookupPolicy": {
+					"local": false
+				}
+			}
+		},
+		{
+			"apiVersion": "v1",
+			"kind": "BuildConfig",
+			"metadata": {
+				"labels": {
+					"app": "${NAME}"
+				},
+				"name": "${NAME}"
+			},
+			"spec": {
+				"output": {
+					"to": {
+						"kind": "ImageStreamTag",
+						"name": "${NAME}:latest"
+					}
+				},
+				"source": {
+					"binary": {
+						
+					},
+					"type": "Binary"
+				},
+				"strategy": {
+					"sourceStrategy": {
+						"from": {
+							"kind": "ImageStreamTag",
+							"name": "fuse7-sap-openshift:latest",
+							"namespace": "openshift"
+						},
+						"type": "Source"
+					}
+				}
+			}
+		},
+		{
+			"kind": "Service",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "${NAME}",
+				"annotations": {
+					"description": "Exposes and load balances the application pods"
+				}
+			},
+			"spec": {
+				"ports": [
+					{
+						"name": "8080-tcp",
+						"port": 8080,
+						"targetPort": 8080
+					},
+					{
+						"name": "8778-tcp",
+						"port": 8778,
+						"targetPort": 8778
+					},
+					{
+						"name": "9779-tcp",
+						"port": 9779,
+						"targetPort": 9779
+					},
+					{
+						"name": "8081-tcp",
+						"port": 8081,
+						"targetPort": 8081
+					}
+				],
+				"selector": {
+					"name": "${NAME}"
+				}
+			}
+		},
+		{
+			"kind": "Route",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "${NAME}"
+			},
+			"spec": {
+				"port": {
+					"targetPort": "8080-tcp"
+				},
+				"to": {
+					"kind": "Service",
+					"name": "${NAME}"
+				}
+			}
+		},
+		{
+			"kind": "DeploymentConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "${NAME}",
+				"annotations": {
+					"description": "Defines how to deploy the application server",
+					"template.alpha.openshift.io/wait-for-ready": "true"
+				}
+			},
+			"spec": {
+				"strategy": {
+					"type": "Rolling"
+				},
+				"replicas": 1,
+				"selector": {
+					"name": "${NAME}"
+				},
+				"triggers": [],
+				"template": {
+					"metadata": {
+						"name": "${NAME}",
+						"labels": {
+							"name": "${NAME}"
+						}
+					},
+					"spec": {
+						"containers": [
+							{
+								"env": [
+									{
+										"name": "AB_ENABLED",
+										"value": "jolokia"
+									},
+									{
+										"name": "TZ",
+										"value": "Asia/Kolkata"
+									}
+								],
+								"name": "${NAME}",
+								"image": "docker-registry.default.svc.cluster.local:5000/${PROJECT}/${NAME}:latest",
+								"ports": [
+									{
+										"containerPort": 8080
+									},
+									{
+										"containerPort": 8081
+									},
+									{
+										"containerPort": 8778,
+										"name": "jolokia"
+									},
+									{
+										"containerPort": 9779
+									}
+								],
+								"readinessProbe": {
+									"timeoutSeconds": 3,
+									"initialDelaySeconds": 3,
+									"httpGet": {
+										"path": "/health",
+										"port": 8081
+									}
+								},
+								"resources": {
+									"limits": {
+										"memory": "500Mi",
+										"cpu": "1000m"
+									},
+									"requests": {
+										"cpu": "100m",
+										"memory": "256Mi"
+									}
+								},
+								"volumeMounts": [
+									{
+										"mountPath": "/deployments/config",
+										"name": "${NAME}-config"
+									}
+								],
+								"livenessProbe": {
+									"timeoutSeconds": 3,
+									"initialDelaySeconds": 30,
+									"httpGet": {
+										"path": "/health",
+										"port": 8081
+									}
+								}
+							}
+						],
+						"volumes": [
+							{
+								"configMap": {
+									"items": [
+										{
+											"key": "application-${PROJECT}.properties",
+											"path": "application.properties"
+										}
+									],
+									"name": "${NAME}"
+								},
+								"name": "${NAME}-config"
+							}
+						]
+					}
+				}
+			}
+		}
+	],
+	"parameters": [
+		{
+			"name": "NAME",
+			"displayName": "Name",
+			"required": true,
+			"value": "aip-crm-position-jdg"
+		},
+		{
+			"name": "PROJECT",
+			"displayName": "Project",
+			"description": "Project",
+			"required": true
+		}
+	]
+}
