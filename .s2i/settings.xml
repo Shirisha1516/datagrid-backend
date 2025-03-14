@@ -1,146 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <settings>
-     	
-    <repositories>
-        		
-        <repository>
-            			
-            <id>jboss-public-repository-group</id>
-            			
-            <name>JBoss Public Repository Group</name>
-            			
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            			
-            <releases>
-                				
-                <enabled>true</enabled>
-                				
-                <updatePolicy>never</updatePolicy>
-                			
-            </releases>
-            			
-            <snapshots>
-                				
-                <enabled>true</enabled>
-                				
-                <updatePolicy>daily</updatePolicy>
-                			
-            </snapshots>
-            		
-        </repository>
-        	
-    </repositories>
-    
+    <mirrors>
+        <mirror>
+            <id>nexus</id>
+            <mirrorOf>*</mirrorOf>
+            <url>https://nexus-cicd.api.tatamotors.com/repository/maven-releases/</url>
+            <layout>default</layout>
+        </mirror>
+    </mirrors>
+
+    <servers>
+        <server>
+            <id>nexus</id>
+            <username>admin</username>
+            <password>admin123</password>
+        </server>
+    </servers>
+
     <profiles>
-            
         <profile>
-                  
-            <id>redhat-ga-repository</id>
-                  
-            <repositories>
-                        
-                <repository>
-                              
-                    <id>redhat-ga-repository</id>
-                              
-                    <name>Red Hat GA repository</name>
-                              
-                    <url>http://maven.repository.redhat.com/ga/</url>
-                              
-                    <releases>
-                                    
-                        <enabled>true</enabled>
-                                    
-                        <updatePolicy>never</updatePolicy>
-                                  
-                    </releases>
-                              
-                    <snapshots>
-                                    
-                        <enabled>false</enabled>
-                                    
-                        <updatePolicy>daily</updatePolicy>
-                                  
-                    </snapshots>
-                            
-                </repository>
-                      
-            </repositories>
-                  
-            <pluginRepositories>
-                        
-                <pluginRepository>
-                              
-                    <id>redhat-ga-repository</id>
-                              
-                    <name>Red Hat GA repository</name>
-                              
-                    <url>http://maven.repository.redhat.com/ga/</url>
-                              
-                    <releases>
-                                    
-                        <enabled>true</enabled>
-                                    
-                        <updatePolicy>never</updatePolicy>
-                                  
-                    </releases>
-                              
-                    <snapshots>
-                                    
-                        <enabled>false</enabled>
-                                    
-                        <updatePolicy>daily</updatePolicy>
-                                  
-                    </snapshots>
-                            
-                </pluginRepository>
-                      
-            </pluginRepositories>
-                
-        </profile>
-          
-        <profile>
-            <id>jboss-ga</id>
+            <id>nexus</id>
             <repositories>
                 <repository>
-                    <id>jboss-ga-repository</id>
-                    <name>JBoss GA Tech Preview Maven Repository</name>
-                    <url>http://maven.repository.redhat.com/techpreview/all</url>
-                    <layout>default</layout>
+                    <id>nexus</id>
+                    <url>https://nexus-cicd.api.tatamotors.com/repository/maven-releases/</url>
                     <releases>
                         <enabled>true</enabled>
-                        <updatePolicy>never</updatePolicy>
                     </releases>
                     <snapshots>
                         <enabled>false</enabled>
-                        <updatePolicy>never</updatePolicy>
                     </snapshots>
                 </repository>
             </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>jboss-ga-plugin-repository</id>
-                    <name>JBoss 6 Maven Plugin Repository</name>
-                    <url>http://maven.repository.redhat.com/techpreview/all</url>
-                    <layout>default</layout>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>never</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                        <updatePolicy>never</updatePolicy>
-                    </snapshots>
-                </pluginRepository>
-            </pluginRepositories>
         </profile>
     </profiles>
-      
+
     <activeProfiles>
-            
-        <activeProfile>redhat-ga-repository</activeProfile>
-          
-        <activeProfile>jboss-ga</activeProfile>
+        <activeProfile>nexus</activeProfile>
     </activeProfiles>
-    
 </settings>
