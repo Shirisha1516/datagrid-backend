@@ -2,13 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.5.5</version>
-        <relativePath />
+        <relativePath /> <!-- Ensure it picks from settings.xml -->
     </parent>
 
     <groupId>com.tml.AIP_POSITION_JDG_TRANS</groupId>
@@ -20,19 +21,23 @@
     <properties>
         <java.version>1.8</java.version>
         <infinispan.version>13.0.6.Final-redhat-00001</infinispan.version>
+        <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
+        <spring-boot-maven-plugin.version>2.1.4.RELEASE-redhat-00001</spring-boot-maven-plugin.version>
+        <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
     </properties>
 
     <packaging>war</packaging>
 
+    <!-- Remove credentials from here; they are now in settings.xml -->
     <repositories>
         <repository>
             <id>nexus</id>
-            <url>https://nexus-cicd.api.tatamotors.com/repository/maven-releases/</url>
+            <url>http://nexus-postgres.apps.ocp4.ocp2.local/nexus/repository/maven-releases/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
@@ -40,13 +45,25 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://nexus-cicd.api.tatamotors.com/repository/maven-releases/</url>
+            <url>http://nexus-postgres.apps.ocp4.ocp2.local/nexus/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <url>https://nexus-cicd.api.tatamotors.com/repository/maven-snapshots/</url>
+            <id>nexus</id>
+            <url>http://nexus-postgres.apps.ocp4.ocp2.local/nexus/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-bom</artifactId>
+                <version>${infinispan.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -54,13 +71,60 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan.protostream</groupId>
+            <artifactId>protostream</artifactId>
+            <version>4.6.5.Final-redhat-00002</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.1.44</version>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-remote-query-client</artifactId>
+            <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-query-dsl</artifactId>
+            <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -69,7 +133,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.5</version>
+                <version>${spring-boot-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
